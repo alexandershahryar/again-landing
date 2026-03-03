@@ -843,8 +843,9 @@
   <!-- WAITLIST CTA -->
   <section class="cta-section" id="waitlist" style="padding: 80px 24px;">
   <h2 style="font-size: 42px; margin-bottom: 40px;">your special moments deserve a home</h2>
-    <form class="waitlist-form" onsubmit="handleSubmit(event)">
-      <input class="waitlist-input" type="email" placeholder="your@email.com" required />
+    <form class="waitlist-form" name="waitlist" method="POST" data-netlify="true" onsubmit="handleSubmit(event)">
+      <input type="hidden" name="form-name" value="waitlist" />
+      <input class="waitlist-input" type="email" name="email" placeholder="your@email.com" required />
       <button class="waitlist-submit" type="submit">join waitlist</button>
     </form>
   </section>
@@ -878,11 +879,25 @@
     // Waitlist form
     function handleSubmit(e) {
       e.preventDefault();
-      const btn = e.target.querySelector('.waitlist-submit');
-      btn.textContent = '✓ You\'re on the list!';
-      btn.style.background = '#A8D9A2';
-      e.target.querySelector('input').disabled = true;
+      const form = e.target;
+      const btn = form.querySelector('.waitlist-submit');
+      const input = form.querySelector('input[type="email"]');
+      btn.textContent = 'submitting...';
       btn.disabled = true;
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form)).toString()
+      })
+      .then(() => {
+        btn.textContent = "✓ you're on the list!";
+        btn.style.background = '#A8D9A2';
+        input.disabled = true;
+      })
+      .catch(() => {
+        btn.textContent = 'something went wrong — try again';
+        btn.disabled = false;
+      });
     }
   </script>
 </body>
